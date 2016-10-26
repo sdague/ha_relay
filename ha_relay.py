@@ -22,7 +22,9 @@ import sys
 import requests
 from evdev import InputDevice, categorize, ecodes
 
-logging.basicConfig(level=logging.DEBUG)
+# for keeping track of modifiers
+SHIFT = False
+CTRL = False
 
 
 def parse_args():
@@ -60,6 +62,8 @@ def call_ha(domain, name, payload=None):
 
 
 def dispatch(key):
+    global SHIFT
+    global CTRL
     log = logging.getLogger()
     log.info("Key: %s" % key)
     # Using numbers for internet radio settings
@@ -67,13 +71,35 @@ def dispatch(key):
         call_ha('script', 'wamc_lr')
     if key == ecodes.KEY[ecodes.KEY_2]:
         call_ha('script', 'rp_lr')
+    if key == ecodes.KEY[ecodes.KEY_B] and SHIFT and CTRL:
+        log.debug("Blue!")
     # Using letters for light setting
+
+
+def set_modifiers(event):
+    global SHIFT
+    global CTRL
+    key = categorize(event)
+    if key.keycode == ecodes.KEY[ecodes.KEY_LEFTSHIFT]:
+        if event.value == 1:
+            SHIFT = True
+        elif event.value == 0:
+            SHIFT = False
+    if key.keycode == ecodes.KEY[ecodes.KEY_RIGHTCTRL]:
+        if event.value == 1:
+            CTRL = True
+        elif event.value == 0:
+            CTRL = False
 
 
 def event_loop(dev):
     for event in dev.read_loop():
         if event.type == ecodes.EV_KEY:
+            # sets the modifiers as we go
+            set_modifiers(event)
+            log = logging.getLogger()
             key = categorize(event)
+            log.debug("Raw key: %s" % key)
             # only work on key down events
             if event.value == 1:
                 dispatch(key.keycode)
