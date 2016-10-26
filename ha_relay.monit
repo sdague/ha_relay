@@ -1,5 +1,5 @@
 check process ha_relay
       matching ".*ha_relay.py"
       start program = "/bin/bash -c 'cd /home/sdague/code/ha_relay; ./ha_relay.py'"
-            as uid sdague
+            as uid sdague and gid input
       stop program "killall ha_relay.py"
