@@ -61,7 +61,7 @@ def call_ha(domain, name, payload=None):
 
 def dispatch(key):
     log = logging.getLogger()
-    log.info("Key: %s" % type(key))
+    log.info("Key: %s" % key)
     # Using numbers for internet radio settings
     if key == ecodes.KEY[ecodes.KEY_1]:
         call_ha('script', 'wamc_lr')
