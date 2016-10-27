@@ -94,15 +94,18 @@ def set_modifiers(event):
 
 def event_loop(dev):
     for event in dev.read_loop():
-        if event.type == ecodes.EV_KEY:
-            # sets the modifiers as we go
-            set_modifiers(event)
-            log = logging.getLogger()
-            key = categorize(event)
-            log.debug("Raw key: %s" % key)
-            # only work on key down events
-            if event.value == 1:
-                dispatch(key.keycode)
+        try:
+            if event.type == ecodes.EV_KEY:
+                # sets the modifiers as we go
+                set_modifiers(event)
+                log = logging.getLogger()
+                key = categorize(event)
+                log.debug("Raw key: %s" % key)
+                # only work on key down events
+                if event.value == 1:
+                    dispatch(key.keycode)
+        except Exception:
+            log.exception()
 
 
 def main():
